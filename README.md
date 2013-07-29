@@ -73,7 +73,7 @@ Define a response for the mock server and block until you receive the response d
     mockServer.response().write(new byte[] { 255, 254, 253, 252 });
  
     //Create a socket and connect on the local port
-    Socket socket = new Socket('localhost', TEST_PORT);
+    Socket socket = new Socket("localhost", TEST_PORT);
     socket.connect();
      
     //Send the data to the mock server
