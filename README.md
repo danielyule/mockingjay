@@ -36,7 +36,7 @@ IO library to write arbitrarily complex data. For example:
  
 ```Java
     Writer expectationWriter = new OutputStreamWriter(mockServer.expected());
-    expectationWriter.write(&quot;I do not like green eggs and ham!&quot;);
+    expectationWriter.write("I do not like green eggs and ham!");
 ```
 
 To define what the server should respond when it receives data from the
