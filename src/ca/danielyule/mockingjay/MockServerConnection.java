@@ -11,6 +11,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -133,7 +134,11 @@ public class MockServerConnection {
 		// thread and set to null between the check and the shutdown
 		final Socket localSocket = socket;
 		if (localSocket != null) {
-			localSocket.shutdownInput();
+			try{
+				localSocket.shutdownInput();
+			} catch (SocketException e) {
+				//Ignore this, as this might occur if the other side closes the socket first.
+			}
 		}
 
 		ioThread.interrupt();
@@ -306,7 +311,7 @@ public class MockServerConnection {
 					}
 					try {
 						if (ioToRunnerInput.available() > 0) {
-							final InputStream localExpectedInputStream = expectedInputStream;
+							InputStream localExpectedInputStream = expectedInputStream;
 							while (ioToRunnerInput.available() > 0
 									&& ((localExpectedInputStream != null && localExpectedInputStream
 											.available() > 0) || (!readActions.isEmpty() && readActions
@@ -315,6 +320,7 @@ public class MockServerConnection {
 										|| localExpectedInputStream.available() == 0) {
 									byte[] expected = readActions.remove().toByteArray();
 									expectedInputStream = new ByteArrayInputStream(expected);
+									localExpectedInputStream = expectedInputStream;
 								}
 								while (localExpectedInputStream != null
 										&& localExpectedInputStream.available() > 0
@@ -388,7 +394,7 @@ public class MockServerConnection {
 									+ new String(Arrays.copyOf(read, readLen)));
 							ioToRunnerOutput.write(read, 0, readLen);
 							synchronized (runner) {
-								runner.notify();
+								runner.notifyAll();
 							}
 						}
 

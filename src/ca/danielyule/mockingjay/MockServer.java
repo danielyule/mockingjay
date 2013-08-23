@@ -1,6 +1,7 @@
 package ca.danielyule.mockingjay;
 
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -179,6 +180,12 @@ public class MockServer implements TestRule {
 	 */
 	public OutputStream response() {
 		return connections.get(Thread.currentThread()).response();
+	}
+	
+	public static void main(String [] args) {
+		Date date = new Date(-1000000000000l);
+		 date = new Date(-5, 2, 1);
+		System.out.println(date);
 	}
 
 }
