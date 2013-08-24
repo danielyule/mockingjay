@@ -60,6 +60,16 @@ Then, the server will wait for the bytes [6, 7, 8, 9, 10], after which it
 will send back [251, 250, 249, 248]. If at any point there is an IO problem,
 or the data sent on the socket does not match what the server expects, the
 test will fail, although not until the method exits.
+
+### Matcher
+There is a matcher which can be used to verify that the connection has been closed, 
+if you want to make sure that your code has correctly shut down the connection.
+
+It can be used as follows, supposing `mockServer` is a variable of type MockServer as above
+
+```Java
+    Assert.assertThat(testingServer, MockServer.isClosed());
+``` 
  
 ##Important Note
 ###Problem

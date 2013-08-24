@@ -134,10 +134,11 @@ public class MockServerConnection {
 		// thread and set to null between the check and the shutdown
 		final Socket localSocket = socket;
 		if (localSocket != null) {
-			try{
+			try {
 				localSocket.shutdownInput();
 			} catch (SocketException e) {
-				//Ignore this, as this might occur if the other side closes the socket first.
+				// Ignore this, as this might occur if the other side closes the
+				// socket first.
 			}
 		}
 
@@ -390,8 +391,6 @@ public class MockServerConnection {
 						// System.out.println("Waiting for data!");
 						readLen = socketInputStream.read(read);
 						if (readLen > 0) {
-							System.out.println("Got some data: "
-									+ new String(Arrays.copyOf(read, readLen)));
 							ioToRunnerOutput.write(read, 0, readLen);
 							synchronized (runner) {
 								runner.notifyAll();
@@ -594,6 +593,16 @@ public class MockServerConnection {
 
 		}
 
+	}
+
+	/**
+	 * Returns true if this server's connection has been closed or is
+	 * non-existent
+	 * 
+	 * @return True if the connection is closed or null
+	 */
+	boolean isClosed() {
+		return socket == null || socket.isClosed();
 	}
 
 }

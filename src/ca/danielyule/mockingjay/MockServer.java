@@ -1,10 +1,11 @@
 package ca.danielyule.mockingjay;
 
 import java.io.OutputStream;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Matcher;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -78,24 +79,31 @@ import org.junit.runners.model.Statement;
  * 
  * <h3>Important Note</h3>
  * <h4>Problem</h4>
- * It is strongly recommended that your tests include both an expected and response component.  Because of the implementation of TCP/IP on modern operating systems, if you open a socket to the mock server, write your data and then immediately close, the data may or may not be sent, and the mock server will fail.  If you are getting random, inconsistent test failures, then this may be the cause.
+ * It is strongly recommended that your tests include both an expected and
+ * response component. Because of the implementation of TCP/IP on modern
+ * operating systems, if you open a socket to the mock server, write your data
+ * and then immediately close, the data may or may not be sent, and the mock
+ * server will fail. If you are getting random, inconsistent test failures, then
+ * this may be the cause.
  * <h4>Solution</h4>
- * Define a response for the mock server and block until you receive the response data, as shown below:
+ * Define a response for the mock server and block until you receive the
+ * response data, as shown below:
+ * 
  * <pre>
- * //Define what we expect the server to send and receive. 
+ * // Define what we expect the server to send and receive.
  * mockServer.expected().write(new byte[] { 1, 2, 3, 4, 5 });
  * mockServer.response().write(new byte[] { 255, 254, 253, 252 });
  * 
- * //Create a socket and connect on the local port
- * Socket socket = new Socket("localhost", TEST_PORT);
+ * // Create a socket and connect on the local port
+ * Socket socket = new Socket(&quot;localhost&quot;, TEST_PORT);
  * socket.connect();
  * 
- * //Send the data to the mock server
+ * // Send the data to the mock server
  * socket.getOutputStream.write(new byte[] { 1, 2, 3, 4, 5 });
  * 
  * byte response = new byte[4];
  * 
- * //block until the server responds
+ * // block until the server responds
  * socket.getInputStream.read(response);
  * 
  * </pre>
@@ -181,11 +189,44 @@ public class MockServer implements TestRule {
 	public OutputStream response() {
 		return connections.get(Thread.currentThread()).response();
 	}
-	
-	public static void main(String [] args) {
-		Date date = new Date(-1000000000000l);
-		 date = new Date(-5, 2, 1);
-		System.out.println(date);
+
+	/**
+	 * Creates a matcher for a {@link MockServer} that matches when the
+	 * connection to the server has been closed.
+	 * 
+	 * Can be used like
+	 * 
+	 * <code>
+	 * Assert.assertThat(testingServer, MockServer.isClosed());
+	 * </code>
+	 * 
+	 * @return A {@link Matcher} to match when the connection is closed 
+	 */
+	public static Matcher<MockServer> isClosed() {
+		return new BaseMatcher<MockServer>() {
+
+			@Override
+			public boolean matches(Object item) {
+				if (item instanceof MockServer) {
+					return ((MockServer) item).checkIfClosed();
+				}
+				return false;
+			}
+
+			@Override
+			public void describeTo(org.hamcrest.Description description) {
+				description.appendText("a closed connection to the server");
+			}
+		};
+	}
+
+	/**
+	 * Checks if the connection has been closed
+	 * 
+	 * @return True if the connection is closed or null, false otherwise
+	 */
+	private boolean checkIfClosed() {
+		return connections.get(Thread.currentThread()).isClosed();
 	}
 
 }
