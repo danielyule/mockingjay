@@ -43,7 +43,7 @@ public class TestAsRule {
 	 * to it
 	 */
 	@Test
-//	@Ignore
+	// @Ignore
 	public void testSendNothing() {
 		// Intentionally left blank, but this should still pass and exit
 	}
@@ -59,7 +59,7 @@ public class TestAsRule {
 	 *             If there is no networking.
 	 */
 	@Test
-//	@Ignore
+	// @Ignore
 	@SuppressWarnings("static-method")
 	public void testJustConnect() throws UnknownHostException, IOException {
 		Socket s = new Socket("localhost", TEST_PORT);
@@ -75,7 +75,7 @@ public class TestAsRule {
 	 *             If there is a problem writing to the socket.
 	 */
 	@Test
-//	@Ignore
+	// @Ignore
 	public void testExpectOneWrittenFirst() throws IOException {
 		Writer expectationWriter = new OutputStreamWriter(mockServer.expected());
 
@@ -87,16 +87,14 @@ public class TestAsRule {
 		Socket s = new Socket("localhost", TEST_PORT);
 
 		s.getOutputStream().write("I do not like green eggs and ham!".getBytes());
-		
+
 		byte[] received = new byte[DEFAULT_RESPONSE.length];
 		Assert.assertThat(s.getInputStream().read(received), is(DEFAULT_RESPONSE.length));
 		Assert.assertThat(received, is(DEFAULT_RESPONSE));
 
-
 		s.close();
 
 	}
-
 
 	/**
 	 * Tests the case where the server receives some data and then is told what
@@ -106,7 +104,7 @@ public class TestAsRule {
 	 *             If there is a problem writing to the socket.
 	 */
 	@Test
-//	@Ignore
+	// @Ignore
 	public void testExpectOneWrittenSecond() throws IOException {
 		Writer expectationWriter = new OutputStreamWriter(mockServer.expected());
 
@@ -117,11 +115,10 @@ public class TestAsRule {
 		expectationWriter.write("I do not like green eggs and ham!");
 		mockServer.response().write(DEFAULT_RESPONSE);
 		expectationWriter.flush();
-		
+
 		byte[] received = new byte[DEFAULT_RESPONSE.length];
 		Assert.assertThat(s.getInputStream().read(received), is(DEFAULT_RESPONSE.length));
 		Assert.assertThat(received, is(DEFAULT_RESPONSE));
-
 
 		s.close();
 
@@ -152,6 +149,40 @@ public class TestAsRule {
 		Assert.assertThat(s.getInputStream().read(received), is(DEFAULT_RESPONSE.length));
 		Assert.assertThat(received, is(DEFAULT_RESPONSE));
 
+		s.close();
+	}
+
+	/**
+	 * Tests writing a pair of messages sequentially.
+	 * 
+	 * @throws IOException
+	 */
+	@Test
+	// @Ignore
+	public void testExpectTwoInterleaved() throws IOException {
+		Writer expectationWriter = new OutputStreamWriter(mockServer.expected());
+
+		expectationWriter.write("It was the best of times.  ");
+		expectationWriter.flush();
+		mockServer.response().write(DEFAULT_RESPONSE);
+
+		expectationWriter.write("It was the worst of times.");
+		expectationWriter.flush();
+		mockServer.response().write(DEFAULT_RESPONSE);
+
+		Socket s = new Socket("localhost", TEST_PORT);
+
+		s.getOutputStream().write("It was the best of times.  ".getBytes());
+
+		byte[] received = new byte[DEFAULT_RESPONSE.length];
+		Assert.assertThat(s.getInputStream().read(received), is(DEFAULT_RESPONSE.length));
+		Assert.assertThat(received, is(DEFAULT_RESPONSE));
+		
+		s.getOutputStream().write("It was the worst of times.".getBytes());
+		
+		received = new byte[DEFAULT_RESPONSE.length];
+		Assert.assertThat(s.getInputStream().read(received), is(DEFAULT_RESPONSE.length));
+		Assert.assertThat(received, is(DEFAULT_RESPONSE));
 		s.close();
 	}
 
